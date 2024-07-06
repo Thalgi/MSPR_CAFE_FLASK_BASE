@@ -1,0 +1,578 @@
+{
+	"info": {
+		"_postman_id": "622209bf-5623-4709-9279-c518dd13a4a5",
+		"name": "MSPR - EPSI 1",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "MockAPI",
+			"item": [
+				{
+					"name": "Recup Produits MockAPI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://615f5fb4f7254d0017068109.mockapi.io/api/v1/products",
+							"protocol": "https",
+							"host": [
+								"615f5fb4f7254d0017068109",
+								"mockapi",
+								"io"
+							],
+							"path": [
+								"api",
+								"v1",
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Recup Customers MockAPI",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://615f5fb4f7254d0017068109.mockapi.io/api/v1/customers",
+							"protocol": "https",
+							"host": [
+								"615f5fb4f7254d0017068109",
+								"mockapi",
+								"io"
+							],
+							"path": [
+								"api",
+								"v1",
+								"customers"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "ServerCherryPy",
+			"item": [
+				{
+					"name": "Is Alive",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://127.0.0.7:8000/is_alive",
+							"protocol": "https",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"7"
+							],
+							"port": "8000",
+							"path": [
+								"is_alive"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Gateway API Flask",
+			"item": [
+				{
+					"name": "Test API Basique",
+					"item": [
+						{
+							"name": "Helloworld",
+							"request": {
+								"auth": {
+									"type": "apikey",
+									"apikey": [
+										{
+											"key": "value",
+											"value": "TVNQUl9DYWZlOmVwc2kyMDIz",
+											"type": "string"
+										},
+										{
+											"key": "key",
+											"value": "SECRET_KEY",
+											"type": "string"
+										}
+									]
+								},
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://192.168.1.13:5000",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000"
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Is Alive",
+							"protocolProfileBehavior": {
+								"strictSSL": false
+							},
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://192.168.1.13:5000/check",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"check"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Echo",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"text\" : \"JE suis un TEst\"}"
+								},
+								"url": {
+									"raw": "https://192.168.1.13:5000/echo",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"echo"
+									],
+									"query": [
+										{
+											"key": "text",
+											"value": "je suis un test ???",
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Test API User",
+					"item": [
+						{
+							"name": "CreateUser",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{ \"username\":\"Test\",\r\n\"email\":\"librairedemon@gmail.com\",\r\n\"password\":\"MockMock\"}"
+								},
+								"url": {
+									"raw": "https://192.168.1.13:5000/create_user",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"create_user"
+									],
+									"query": [
+										{
+											"key": "Content-Type",
+											"value": null,
+											"disabled": true
+										}
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "UpdateUser",
+							"request": {
+								"method": "PUT",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\r\n        \"username\": \"MockTAR\"\r\n    }"
+								},
+								"url": {
+									"raw": "https://192.168.1.13:5000/update_user/USER_UUID_HERE",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"update_user",
+										"USER_UUID_HERE"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "DeleteUser",
+							"request": {
+								"method": "DELETE",
+								"header": [],
+								"url": {
+									"raw": "https://192.168.1.13:5000/delete_user/USER_UUID_HERE",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"delete_user",
+										"USER_UUID_HERE"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetUser",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "https://192.168.1.13:5000/get_user/USER_UUID_HERE",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"get_user",
+										"USER_UUID_HERE"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetUserToken",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"email\":\"MockPorc@mock.com\",\r\n\"password\":\"MockMockPorc\"}"
+								},
+								"url": {
+									"raw": "https://192.168.1.13:5000/get_user_token",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"get_user_token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "GetUserUuid",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"email\":\"Mock@mock.com\",\r\n\"password\":\"MockMock\"}"
+								},
+								"url": {
+									"raw": "https://192.168.1.13:5000/get_user_uuid",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"get_user_uuid"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "CheckMailExist",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"email\":\"MockPorc@mock.com\",\r\n\"password\":\"MockMockPorc\"}"
+								},
+								"url": {
+									"raw": "https://192.168.1.13:5000/get_user_token",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"get_user_token"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "ValidateUser",
+							"request": {
+								"method": "POST",
+								"header": [
+									{
+										"key": "Content-Type",
+										"value": "application/json",
+										"type": "default"
+									}
+								],
+								"body": {
+									"mode": "raw",
+									"raw": "{\"user_id\": \"USER UUID HERE\"}"
+								},
+								"url": {
+									"raw": "https://192.168.1.13:5000/validate_user",
+									"protocol": "https",
+									"host": [
+										"192",
+										"168",
+										"1",
+										"13"
+									],
+									"port": "5000",
+									"path": [
+										"validate_user"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				}
+			],
+			"auth": {
+				"type": "apikey",
+				"apikey": [
+					{
+						"key": "value",
+						"value": "TVNQUl9DYWZlOmVwc2kyMDIz",
+						"type": "string"
+					},
+					{
+						"key": "key",
+						"value": "SECRET_KEY",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "ServerCherryPy User",
+			"item": [
+				{
+					"name": "Is Alive",
+					"request": {
+						"auth": {
+							"type": "apikey",
+							"apikey": [
+								{
+									"key": "value",
+									"value": "TVNQUl9DYWZlOmVwc2kyMDIz",
+									"type": "string"
+								},
+								{
+									"key": "key",
+									"value": "SECRET_KEY",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.7:8000/vibe_check/is_alive",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"7"
+							],
+							"port": "8000",
+							"path": [
+								"vibe_check",
+								"is_alive"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Get User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.7:8000/us/get?user_id=50",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"7"
+							],
+							"port": "8000",
+							"path": [
+								"us",
+								"get"
+							],
+							"query": [
+								{
+									"key": "user_id",
+									"value": "50"
+								}
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "AddresseMockAPI",
+			"value": "https://615f5fb4f7254d0017068109.mockapi.io/api/v1",
+			"type": "default"
+		}
+	]
+}
