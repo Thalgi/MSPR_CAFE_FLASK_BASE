@@ -11,7 +11,7 @@ import qrcode
 SCOPES = [
     "https://www.googleapis.com/auth/gmail.send"
 ]
-
+global service
 def send_email_with_qrcode(service, to_email, qr_data):
     """
     Send an email with a QR Code image attached.
@@ -58,3 +58,14 @@ def init_mail_sender():
 
     return service
 
+def get_mail_sender():
+    """
+    Get the service if created, generate it otherwise
+    Returns:service
+    """
+
+    if service == None :
+        service = init_mail_sender()
+        return service
+    else:
+        return service

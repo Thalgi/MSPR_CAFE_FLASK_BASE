@@ -1,17 +1,12 @@
 import secrets
 import uuid
-
-from flask_restful import Resource, reqparse
-
-from mail.mail import init_mail_sender, send_email_with_qrcode
-
-
-service = init_mail_sender()
-
-users = {}
-
 import bcrypt
+from flask_restful import Resource, reqparse
+from mail.mail_bis import GmailQRCodeSender
 
+service = GmailQRCodeSender()
+service.init_mail_sender()
+users = {}
 
 class User:
     def __init__(self, username, email, password):
@@ -25,149 +20,128 @@ class User:
     @staticmethod
     def hash_password(password):
         salt = bcrypt.gensalt()
-        hashed_password = bcrypt.hashpw(password.encode('utf-8'), salt)
-        return hashed_password.decode('utf-8')
+        return bcrypt.hashpw(password.encode('utf-8'), salt).decode('utf-8')
 
     def check_password(self, password):
         return bcrypt.checkpw(password.encode('utf-8'), self.password.encode('utf-8'))
 
-    def to_dict_full(self):
-        return {
-            'username': self.username,
-            'uuid': self.uuid,
-            'email': self.email,
-            'access_token': self.access_token
-        }
-
-    def to_dict(self):
-        return {
+    def to_dict(self, include_sensitive=False):
+        user_dict = {
             'username': self.username,
             'email': self.email,
         }
+        if include_sensitive:
+            user_dict.update({
+                'uuid': self.uuid,
+                'access_token': self.access_token
+            })
+        return user_dict
 
-    def to_uuid(self):
-        return {
-            'username': self.username,
-            'uuid': self.uuid,
-        }
+class UserResource(Resource):
+    @staticmethod
+    def get_user_by_id(user_id):
+        if user_id not in users:
+            return None
+        return users[user_id]
 
+    @staticmethod
+    def get_user_by_email(email):
+        for user in users.values():
+            if user.email == email:
+                return user
+        return None
 
-class CreateUser(Resource):
+class CreateUser(UserResource):
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str, required=True, help='Username is required and must be a string.')
-        parser.add_argument('email', type=str, required=True, help='Email is required and must be a string.')
-        parser.add_argument('password', type=str, required=True, help='Password is required and must be a string.')
+        parser.add_argument('username', type=str, required=True, help='Username is required.')
+        parser.add_argument('email', type=str, required=True, help='Email is required.')
+        parser.add_argument('password', type=str, required=True, help='Password is required.')
         args = parser.parse_args()
 
         new_user = User(args['username'], args['email'], args['password'])
         users[new_user.uuid] = new_user
 
-        return {'message': 'User created successfully', 'user': new_user.to_uuid()}, 201
+        return {'message': 'User created successfully', 'user': new_user.to_dict(include_sensitive=True)}, 201
 
-
-class GetUser(Resource):
+class GetUser(UserResource):
     def get(self, user_id):
-        if user_id not in users:
+        user = self.get_user_by_id(user_id)
+        if not user:
             return {'error': 'User not found'}, 404
-
-        user = users[user_id]
         return {'user': user.to_dict()}
 
-
-class UpdateUser(Resource):
+class UpdateUser(UserResource):
     def put(self, user_id):
-        if user_id not in users:
+        user = self.get_user_by_id(user_id)
+        if not user:
             return {'error': 'User not found'}, 404
 
         parser = reqparse.RequestParser()
-        parser.add_argument('username', type=str, help='Username must be a string.')
-        parser.add_argument('email', type=str, help='Email must be a string.')
+        parser.add_argument('username', type=str)
+        parser.add_argument('email', type=str)
         args = parser.parse_args()
 
-        user = users[user_id]
-        if args['username'] is not None:
+        if args['username']:
             user.username = args['username']
-        if args['email'] is not None:
+        if args['email']:
             user.email = args['email']
 
-        return {'message': 'User updated successfully', 'user': user.to_dict()},201
+        return {'message': 'User updated successfully', 'user': user.to_dict()}, 200
 
-
-class DeleteUser(Resource):
+class DeleteUser(UserResource):
     def delete(self, user_id):
         if user_id not in users:
             return {'error': 'User not found'}, 404
-
         del users[user_id]
         return {'message': 'User deleted successfully'}
 
-
-class GetUserToken(Resource):
+class GetUserToken(UserResource):
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('email', type=str, required=True, help='Email is required and must be a string.')
-        parser.add_argument('password', type=str, required=True, help='Password is required and must be a string.')
+        parser.add_argument('email', type=str, required=True, help='Email is required.')
+        parser.add_argument('password', type=str, required=True, help='Password is required.')
         args = parser.parse_args()
 
-        user = None
-        for u in users.values():
-            if u.email == args['email'] and u.check_password(args['password']):
-                user = u
-                break
-
-        if user is None:
+        user = self.get_user_by_email(args['email'])
+        if not user or not user.check_password(args['password']):
             return {'error': 'Invalid email or password'}, 401
 
-        return {'access_token': user.access_token}, 201
+        return {'access_token': user.access_token}, 200
 
-
-class GetUserUuid(Resource):
+class GetUserUuid(UserResource):
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('email', type=str, required=True, help='Email is required and must be a string.')
-        parser.add_argument('password', type=str, required=True, help='Password is required and must be a string.')
+        parser.add_argument('email', type=str, required=True, help='Email is required.')
+        parser.add_argument('password', type=str, required=True, help='Password is required.')
         args = parser.parse_args()
 
-        user = None
-        for u in users.values():
-            if u.email == args['email']:
-                user = u
-                if u.check_password(args['password']):
-                    if user.validate:
-                        break
-                    else:
-                        return {'error': 'The User is not validated'}, 401
-
-        if user is None:
+        user = self.get_user_by_email(args['email'])
+        if not user or not user.check_password(args['password']):
             return {'error': 'Invalid email or password'}, 401
+        if not user.validate:
+            return {'error': 'The User is not validated'}, 401
 
-        return {'user_uuid': user.uuid}, 201
+        return {'user_uuid': user.uuid}, 200
 
-
-class ValidateUser(Resource):
+class ValidateUser(UserResource):
     def get(self, user_id):
-        if user_id not in users:
+        user = self.get_user_by_id(user_id)
+        if not user:
             return {'error': 'User not found'}, 404
 
-        user = users[user_id]
+        qr_data = f"https://7695-2a01-cb19-d81-c600-dd62-6606-ee27-e4bb.ngrok-free.app/confirm_user{user.uuid}"
+        service.send_email_with_qrcode(user.email, qr_data)
 
-        to_email = str(user.email)
-        qr_data = "https://7695-2a01-cb19-d81-c600-dd62-6606-ee27-e4bb.ngrok-free.app/confirm_user" + str(user.uuid)
-        send_email_with_qrcode(service, to_email, qr_data)
+        return {'message': 'QR code email sent successfully'}, 200
 
-        return {'message': 'QR code email sent successfully'}, 201
-
-
-class CheckMailExist(Resource):
+class CheckMailExist(UserResource):
     def post(self):
         parser = reqparse.RequestParser()
-        parser.add_argument('email', type=str, required=True, help='Email input is required and must be a string.')
+        parser.add_argument('email', type=str, required=True, help='Email input is required.')
         args = parser.parse_args()
-        email = args['email']
 
-        for u in users.values():
-            if email == u.email:
-                return {'message': 'The email exists.'}
-            else:
-                return {'message': "The email doesn't exist."}
+        user = self.get_user_by_email(args['email'])
+        if user:
+            return {'message': 'The email exists.'}
+        return {'message': "The email doesn't exist."}
