@@ -2,7 +2,9 @@ import secrets
 import uuid
 import bcrypt
 from flask_restful import Resource, reqparse
-from mail.mail_bis import GmailQRCodeSender
+from mail.mail import GmailQRCodeSender
+from constant import TOKEN_LENGTH, CONFIRM_USER_URL
+
 
 service = GmailQRCodeSender()
 service.init_mail_sender()
@@ -130,7 +132,7 @@ class ValidateUser(UserResource):
         if not user:
             return {'error': 'User not found'}, 404
 
-        qr_data = f"https://7695-2a01-cb19-d81-c600-dd62-6606-ee27-e4bb.ngrok-free.app/confirm_user{user.uuid}"
+        qr_data = f"{CONFIRM_USER_URL}{user.uuid}"
         service.send_email_with_qrcode(user.email, qr_data)
 
         return {'message': 'QR code email sent successfully'}, 200

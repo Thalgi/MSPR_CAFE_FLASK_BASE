@@ -8,64 +8,55 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import qrcode
 
-SCOPES = [
-    "https://www.googleapis.com/auth/gmail.send"
-]
-global service
-def send_email_with_qrcode(service, to_email, qr_data):
-    """
-    Send an email with a QR Code image attached.
+from constant import GOOGLE_CREDENTIALS_PATH, GMAIL_SCOPES
 
-    Args:
-        service: An authorized Gmail API service instance.
-        to_email (str): The recipient's email address.
-        qr_data (str): The data to be encoded in the QR Code.
-    """
+class GmailQRCodeSender:
+    def __init__(self):
+        self.service = None
 
-    img = qrcode.make(qr_data)
-    img_buffer = BytesIO()
-    img.save(img_buffer, format="PNG")
-    img_buffer.seek(0)
+    def init_mail_sender(self):
+        flow = InstalledAppFlow.from_client_secrets_file(GOOGLE_CREDENTIALS_PATH, GMAIL_SCOPES)
+        creds = flow.run_local_server(port=0)
+        self.service = build('gmail', 'v1', credentials=creds)
 
-    msg = MIMEMultipart()
-    text = MIMEText('Please Scan the QR Code to connect')
-    msg.attach(text)
+    def get_mail_sender(self):
+        """
+        Get the service if created, generate it otherwise
+        Returns: service
+        """
+        if self.service is None:
+            self.init_mail_sender()
+        return self.service
 
-    image = MIMEImage(img_buffer.read())
-    image.add_header('Content-Disposition', 'attachment', filename='qrcode.png')
-    msg.attach(image)
+    def send_email_with_qrcode(self, to_email, qr_data):
+        """
+        Send an email with a QR Code image attached.
 
-    msg['to'] = to_email
-    msg['subject'] = 'MSPR-Cafe QRCode Validation'
-    create_message = {'raw': base64.urlsafe_b64encode(msg.as_bytes()).decode()}
+        Args:
+            to_email (str): The recipient's email address.
+            qr_data (str): The data to be encoded in the QR Code.
+        """
+        service = self.get_mail_sender()
 
-    try:
-        message = (service.users().messages().send(userId="me", body=create_message).execute())
-        print(F'sent message to {message} Message Id: {message["id"]}')
-    except HttpError as error:
-        print(F'An error occurred: {error}')
-        message = None
+        img = qrcode.make(qr_data)
+        img_buffer = BytesIO()
+        img.save(img_buffer, format="PNG")
+        img_buffer.seek(0)
 
+        msg = MIMEMultipart()
+        text = MIMEText('Please Scan the QR Code to connect')
+        msg.attach(text)
 
-def init_mail_sender():
-    """
-    Authenticate the user, create a Gmail API service instance, and return the created service
-    """
+        image = MIMEImage(img_buffer.read())
+        image.add_header('Content-Disposition', 'attachment', filename='qrcode.png')
+        msg.attach(image)
 
-    flow = InstalledAppFlow.from_client_secrets_file('ressource/GoogleAuth/credentials.json', SCOPES)
-    creds = flow.run_local_server(port=0)
-    service = build('gmail', 'v1', credentials=creds)
+        msg['to'] = to_email
+        msg['subject'] = 'MSPR-Cafe QRCode Validation'
+        create_message = {'raw': base64.urlsafe_b64encode(msg.as_bytes()).decode()}
 
-    return service
-
-def get_mail_sender():
-    """
-    Get the service if created, generate it otherwise
-    Returns:service
-    """
-
-    if service == None :
-        service = init_mail_sender()
-        return service
-    else:
-        return service
+        try:
+            message = service.users().messages().send(userId="me", body=create_message).execute()
+            print(f'sent message to {to_email} Message Id: {message["id"]}')
+        except HttpError as error:
+            print(f'An error occurred: {error}')
