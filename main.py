@@ -11,13 +11,6 @@ app = Flask(__name__)
 api = Api(app)
 app.config['SECRET_KEY'] = SECRET_KEY
 
-# Configurez le limiteur
-limiter = Limiter(
-    app,
-    key_func=get_remote_address,
-    default_limits=["200 per day", "50 per hour"]
-)
-
 # Enregistrez le blueprint utilisateur
 app.register_blueprint(user_blueprint, url_prefix='/user')
 

@@ -1,6 +1,6 @@
 # Chemins des fichiers
-SSL_CERT_PATH = "path/to/server.crt"
-SSL_KEY_PATH = "path/to/server.key"
+SSL_CERT_PATH = "ssl/server.crt"
+SSL_KEY_PATH = "ssl/server.key"
 GOOGLE_CREDENTIALS_PATH = 'ressource/GoogleAuth/credentials.json'
 
 # Configuration de l'application
