@@ -42,5 +42,6 @@ jobs:
         GMAIL_PASSWORD: ${{ secrets.GMAIL_PASSWORD }}
         GMAIL_CLIENTID: ${{ secrets.GMAIL_CLIENTID }}
         GMAIL_CLIENTSECRET: ${{ secrets.GMAIL_CLIENTSECRET }}
+        GOOGLE_CREDENTIALS_JSON: ${{ secrets.GOOGLE_CREDENTIALS_JSON  }}
       run: |
         python main.py

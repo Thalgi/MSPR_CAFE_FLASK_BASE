@@ -7,6 +7,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import qrcode
+import json
+from google.oauth2 import service_account
+from googleapiclient.discovery import build
 
 from constant import GOOGLE_CREDENTIALS_PATH, GMAIL_SCOPES
 
@@ -16,7 +19,7 @@ class GmailQRCodeSender:
 
     def init_mail_sender(self):
         flow = InstalledAppFlow.from_client_secrets_file(GOOGLE_CREDENTIALS_PATH, GMAIL_SCOPES)
-        creds = flow.run_local_server(port=0)
+        creds = "GOOGLE_CREDENTIALS_JSON"
         self.service = build('gmail', 'v1', credentials=creds)
 
     def get_mail_sender(self):
